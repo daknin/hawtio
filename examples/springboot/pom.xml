@@ -21,7 +21,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot-version}</version>
+        <version>${spring-boot1-version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -85,7 +85,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot-version}</version>
+        <version>${spring-boot1-version}</version>
         <configuration>
           <mainClass>io.hawt.example.spring.boot.SampleSpringBootService</mainClass>
         </configuration>

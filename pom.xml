@@ -87,7 +87,8 @@
     <slf4j-api-version>1.6.6</slf4j-api-version>
     <slf4j-version>1.7.21</slf4j-version>
     <spring-version>4.3.16.RELEASE</spring-version>
-    <spring-boot-version>1.5.12.RELEASE</spring-boot-version>
+    <spring-boot1-version>1.5.12.RELEASE</spring-boot1-version>
+    <spring-boot2-version>2.0.5.RELEASE</spring-boot2-version>
     <wildfly-version>11.0.0.Final</wildfly-version>
     <wildfly-maven-plugin-version>1.2.1.Final</wildfly-maven-plugin-version>
   </properties>
