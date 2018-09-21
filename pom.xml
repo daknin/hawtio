@@ -113,6 +113,7 @@
     <module>platforms/hawtio-osgi-jmx</module>
     <module>platforms/karaf</module>
     <module>platforms/springboot</module>
+    <module>platforms/springboot2</module>
     <module>platforms/wildfly</module>
     <module>tooling/hawtio-junit</module>
     <module>tooling/hawtio-maven-plugin</module>
