@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.ManagementContextResolver;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -37,8 +36,8 @@ public abstract class HawtioAuthenticationIsDisabledMvcIT {
             setProperty("server.context-path", contextPath);
             setProperty("server.servlet-path", servletPrefix);
             setProperty("management.context-path", managementContextPath);
-            setProperty("endpoints.jolokia.path", jolokiaPath);
-            setProperty("endpoints.hawtio.path", hawtioPath);
+            //setProperty("endpoints.jolokia.path", jolokiaPath);
+            //setProperty("endpoints.hawtio.path", hawtioPath);
 
             this.contextPath = Strings.webContextPath(contextPath);
             this.servletPrefix = Strings.webContextPath(servletPrefix);
@@ -61,7 +60,11 @@ public abstract class HawtioAuthenticationIsDisabledMvcIT {
 
             public HawtioEndpointIsSensitiveJolokiaEndpointIsNotSensitiveMvcIT() {
                 setProperty("hawtio.authenticationEnabled", "false");
-                setProperty("endpoints.jolokia.sensitive", "false");
+                //setProperty("endpoints.jolokia.sensitive", "false");
+
+                setProperty("management.endpoint.jolokia.enabled", "true");
+                setProperty("management.endpoints.web.exposure.include", "*");
+                //setProperty("#management.endpoints.web.exposure.include", "jolokia");
             }
 
             @Test
@@ -72,7 +75,7 @@ public abstract class HawtioAuthenticationIsDisabledMvcIT {
 
             @Test
             public void testJolokiaIsAccessible() throws Exception {
-                mockMvc.perform(get("/jolokia")).andExpect(status().isOk());
+                mockMvc.perform(get("/actuator/jolokia")).andExpect(status().isOk());
             }
 
             @Test

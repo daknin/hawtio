@@ -5,7 +5,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
+import org.springframework.boot.actuate.autoconfigure.web.server.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +49,7 @@ public abstract class HawtioConfigurationIT {
     }
 
     @WebAppConfiguration
-    @TestPropertySource(properties = "endpoints.enabled=false")
+    @TestPropertySource(properties = "management.endpoints.enabled-by-default=false")
     public static class HawtioIsDisabledWhenEndpointsAreDisabledTest
             extends TestBase {
 
@@ -60,7 +60,7 @@ public abstract class HawtioConfigurationIT {
     }
 
     @WebAppConfiguration
-    @TestPropertySource(properties = "endpoints.hawtio.enabled=false")
+    @TestPropertySource(properties = "management.endpoints.enabled-by-default=false")
     public static class HawtioEndpointIsDisabledTest extends TestBase {
 
         @Test(expected = NoSuchBeanDefinitionException.class)
@@ -70,8 +70,8 @@ public abstract class HawtioConfigurationIT {
     }
 
     @WebAppConfiguration
-    @TestPropertySource(properties = { "endpoints.enabled=false",
-            "endpoints.hawtio.enabled=true" })
+    @TestPropertySource(properties = { "management.endpoints.enabled-by-default=false",
+            "management.endpoint.hawtio.enabled=true" })
     public static class HawtioEndpointIsEnabledWhileOtherEndpointsAreDisabledTest
             extends TestBase {
 
