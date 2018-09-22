@@ -1,5 +1,8 @@
 package io.hawt.springboot2;
 
+import static io.hawt.springboot2.HawtioProperties.HAWTIO_REQUEST_MAPPING;
+import static io.hawt.springboot2.HawtioProperties.JOLOKIA_ACTUATOR_ENDPOINT_ID;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,14 +33,15 @@ import io.hawt.web.filters.XFrameOptionsFilter;
 import io.hawt.web.filters.XXSSProtectionFilter;
 import io.hawt.web.proxy.ProxyServlet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.ManagementContextConfiguration;
-import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
-import org.springframework.boot.actuate.endpoint.mvc.JolokiaMvcEndpoint;
+import org.springframework.boot.actuate.autoconfigure.jolokia.JolokiaEndpoint;
+import org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration;
+import org.springframework.boot.actuate.autoconfigure.web.server.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.Ordered;
@@ -66,15 +70,31 @@ public class HawtioConfiguration {
 
         final String prefix;
         if (serverPort == managementPort) {
-            prefix = Strings.webContextPath(serverProperties.getServletPrefix());
+            prefix = Strings.webContextPath(serverProperties.getServlet().getServletPrefix());
         } else {
             prefix = "";
         }
 
         this.managementContextPath = Strings.webContextPath(prefix,
-                                                            managementServerProperties.getContextPath());
-        this.hawtioPath = Strings.webContextPath(managementContextPath,
-                                                 hawtioEndpoint.getPath());
+                                                            managementServerProperties.getServlet().getContextPath());
+        hawtioPath = HAWTIO_REQUEST_MAPPING;
+    }
+
+    @Bean
+    public HawtioController hawtioController() {
+        return new HawtioController();
+    }
+
+    @Bean
+    public HawtioWebMvcConfigurer hawtioWebMvcConfigurer() {
+        return new HawtioWebMvcConfigurer();
+    }
+
+    // TODO
+    @Bean
+    public Object noop(ManagementContextResolver managementContextResolver, ApplicationContext applicationContext) {
+        managementContextResolver.setApplicationContext(applicationContext);
+        return new Object();
     }
 
     @Autowired
@@ -84,23 +104,24 @@ public class HawtioConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(JolokiaMvcEndpoint.class)
+    @ConditionalOnBean(JolokiaEndpoint.class)
     public SimpleUrlHandlerMapping hawtioUrlMapping(
         final ManagementServerProperties managementServerProperties,
         final HawtioEndpoint hawtioEndpoint,
-        final JolokiaMvcEndpoint jolokiaEndpoint) {
-        final String hawtioPath = Strings.webContextPath(hawtioEndpoint.getPath());
-        final String jolokiaPath = Strings.webContextPath(jolokiaEndpoint.getPath());
+        final JolokiaEndpoint jolokiaEndpoint) {
+//        final String hawtioPath = Strings.webContextPath(hawtioEndpoint.getPath());
+//        final String jolokiaPath = Strings.webContextPath(jolokiaEndpoint.getPath());
+        final String jolokiaPath = "/actuator/" + JOLOKIA_ACTUATOR_ENDPOINT_ID;
 
         final SilentSimpleUrlHandlerMapping mapping = new SilentSimpleUrlHandlerMapping();
         final Map<String, Object> urlMap = new HashMap<>();
 
         if (!hawtioPath.isEmpty() || !"/jolokia".equals(jolokiaPath)) {
             final String hawtioJolokiaPath = Strings.webContextPath(
-                managementServerProperties.getContextPath(), hawtioPath,
+                managementServerProperties.getServlet().getContextPath(), hawtioPath,
                 "jolokia", "**");
             urlMap.put(hawtioJolokiaPath,
-                       new JolokiaForwardingController(jolokiaEndpoint.getPath()));
+                       new JolokiaForwardingController("/actuator/" + JOLOKIA_ACTUATOR_ENDPOINT_ID/*jolokiaEndpoint.getPath()*/));
             mapping.setOrder(Ordered.HIGHEST_PRECEDENCE);
         } else {
             urlMap.put(SilentSimpleUrlHandlerMapping.DUMMY, null);
@@ -198,13 +219,13 @@ public class HawtioConfiguration {
     }
 
     @Bean
-    public FilterRegistrationBean authenticationFilter(final Optional<JolokiaMvcEndpoint> jolokiaEndpoint) {
+    public FilterRegistrationBean authenticationFilter(final Optional<JolokiaEndpoint> jolokiaEndpoint) {
         final FilterRegistrationBean filter = new FilterRegistrationBean();
         filter.setFilter(new AuthenticationFilter());
-        if (jolokiaEndpoint.isPresent() && !jolokiaEndpoint.get().getPath().isEmpty()) {
-            filter.addUrlPatterns(
-                Strings.webContextPath(managementContextPath, jolokiaEndpoint.get().getPath(), "*"));
-        }
+//        if (jolokiaEndpoint.isPresent() && !jolokiaEndpoint.get().getPath().isEmpty()) {
+//            filter.addUrlPatterns(
+//                Strings.webContextPath(managementContextPath, jolokiaEndpoint.get().getPath(), "*"));
+//        }
         return filter;
     }
 
